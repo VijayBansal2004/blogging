@@ -1,33 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { Client, Databases, ID } from "appwrite";
+import NavigationBar from './components/navigation/NavigationBar';
+import BlogForm from './components/blog-form/BlogForm';
+import { useContext, useState } from 'react';
+import BlogContext from '../src/context/blogContext';
+import BlogCard from './components/blog-card/BlogCard';
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const { blogs, setBlogs, title, setTitle, content, setContent, author, setAuthor, likeCount, setLikeCount, slug, setSlug } = useContext(BlogContext);
+
+  const [backendBlog, setBackendBlog] = useState([]);
+
+  const client = new Client();
+
+  client
+    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setProject('66ff7da10001ffb0bf0f');
+
+  const databases = new Databases(client);
+
+  const promise = databases.createDocument(
+    '66ffb274002cfadf57f1',
+    '66ffb27e001c716d05de',
+    ID.unique(),
+    ...blogs
+  );
+
+  promise.then(function (response) {
+    console.log(response);
+    setBackendBlog(response.document);
+    // console.log(response.documents);
+
+  }, function (error) {
+    console.log(error);
+  });
+
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <NavigationBar />
+      <BlogForm />
+      {
+        backendBlog?.map((blog, index) => <BlogCard key={index} {...blog} />)
+      }
     </>
   )
 }
