@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import BlogContext from "../../context/blogContext";
 
 import Button from "react-bootstrap/Button";
@@ -7,43 +7,65 @@ import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 
 const BlogForm = () => {
-    const {
-        blogs,
-        setBlogs,
-        title,
-        setTitle,
-        content,
-        setContent,
-        author,
-        setAuthor,
-        likeCount,
-        setLikeCount,
-        slug,
-        setSlug,
-    } = useContext(BlogContext);
+    const { blogs, setBlogs } = useContext(BlogContext);
 
-    const onSubmitHandler = (e) => {
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    const [author, setAuthor] = useState("");
+
+    const onSubmitHandler = (
+        e,
+        blogTitle,
+        blogContent,
+        blogAuthor,
+        // blogSlug = slugGenerator(blogTitle)
+    ) => {
         e.preventDefault();
 
-        if (title.length !== 0 || content.length !== 0 || author.length !== 0) {
-            setBlogs([...blogs, { title, content, author, likeCount, slug: slugGenerator(title) }]);
+        if (
+            blogTitle.length !== 0 &&
+            blogContent.length !== 0 &&
+            blogAuthor.length !== 0
+        ) {
+            setBlogs([
+                ...blogs,
+                {
+                    title: blogTitle,
+                    content: blogContent,
+                    author: blogAuthor,
+                    likeCount: 1,
+                    slug: "slug",
+                },
+            ]);
         }
+        cleanUp();
+    };
 
+    // const slugGenerator = (blogTitle) => {
+    //     const slicedTitle = blogTitle.toString().split(" ");
+    //     if (blogTitle.length === 1) {
+    //         return blogTitle;
+    //     } else {
+    //         const blogSlug = slicedTitle.join('-');
+    //         return blogSlug;
+    //     }
+    // };
+
+    const cleanUp = () => {
         setTitle("");
         setContent("");
         setAuthor("");
-        setSlug("");
     };
 
-    const slugGenerator = (blogTitle) => {
-        const slicedTitle = blogTitle.toString().split(" ");
-        const blogSlug = slicedTitle.join('-');
-        return blogSlug;
-    };
+    // useEffect(() => {
+    //     console.log("Blogs updated:", blogs);
+    // }, [blogs]);
 
     return (
         <>
-            <Form className="w-50 m-auto" onSubmit={(e) => onSubmitHandler(e)}>
+            <Form
+                className="w-50 m-auto"
+                onSubmit={(e) => onSubmitHandler(e, title, content, author)}>
                 <Row className="mb-3">
                     <Form.Group as={Col} controlId="formGridEmail">
                         <Form.Label>Add Blog Title</Form.Label>
